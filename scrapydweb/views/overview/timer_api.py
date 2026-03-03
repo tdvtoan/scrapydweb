@@ -19,8 +19,8 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 
 from ...models import Task, db
+from ...utils.scheduler import scheduler
 from ...vars import STATE_PAUSED, STATE_RUNNING, STATE_STOPPED
-from ..baseview import BaseView
 
 bp = Blueprint("timer_api", __name__, url_prefix="/api/timer")
 logger = logging.getLogger("scrapydweb.timer_api")
@@ -46,10 +46,8 @@ def check_auth():
 
 
 def get_scheduler():
-    """Get APScheduler instance from Flask app."""
-    from flask import current_app
-
-    return current_app.extensions.get("apscheduler")
+    """Get APScheduler instance."""
+    return scheduler
 
 
 @bp.route("/scheduler/status")
