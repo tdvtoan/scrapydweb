@@ -76,13 +76,13 @@ def create_app(test_config=None):
         # load the test config if passed in
         app.config.from_mapping(test_config)
 
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+    # Removed test routes - let real ScrapydWeb handle all routing
+    # These test routes were preventing the real dashboard from loading
 
     handle_db(app)
     handle_route(app)
     handle_template_context(app)
+    # Enable full ScrapydWeb functionality
 
     # @app.errorhandler(404)
     # def handle_error(error):
@@ -122,7 +122,8 @@ def handle_db(app):
     #             self.init_app(app)
     db.app = app  # https://github.com/viniciuschiele/flask-apscheduler/blob/master/examples/flask_context.py
     db.init_app(app)  # http://flask-sqlalchemy.pocoo.org/2.3/contexts/
-    db.create_all()
+    with app.app_context():
+        db.create_all()
 
     # https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-vii-error-handling
     @app.teardown_request
@@ -204,6 +205,10 @@ def handle_route(app):
 
     from .views.overview.tasks import bp as bp_tasks_history
     app.register_blueprint(bp_tasks_history)
+
+    # Timer API for programmatic task management
+    from .views.overview.timer_api import bp as bp_timer_api
+    app.register_blueprint(bp_timer_api)
 
     # Dashboard
     from .views.dashboard.jobs import JobsView, JobsXhrView
