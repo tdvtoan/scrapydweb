@@ -111,7 +111,8 @@ def check_app_config(config):
         # Note that check_app_config() is executed multiple times in test
         if node not in jobs_table_map:
             jobs_table_map[node] = create_jobs_table(re.sub(STRICT_NAME_PATTERN, '_', scrapyd_server))
-    db.create_all(bind='jobs')
+    with db.app.app_context():
+        db.create_all(bind='jobs')
     logger.debug("Created %s tables for JobsView", len(jobs_table_map))
 
     check_assert('LOCAL_SCRAPYD_LOGS_DIR', '', str)
